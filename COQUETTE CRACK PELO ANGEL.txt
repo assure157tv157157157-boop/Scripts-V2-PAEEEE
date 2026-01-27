@@ -132,7 +132,7 @@ waitForPromise(loadingPromise)
 print("Loading completo! Agora executando o resto do script...")
 -- ... resto do seu código ...
 
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
+local redzlib = loadstring(game:HttpGet("https://pastefy.app/denUvbha/raw"))()
 
 local Window = redzlib:MakeWindow({
     Title = "Coquette Hub 3.7_Nova_era",
@@ -4871,4 +4871,5 @@ Tab12:AddButton({
             end
         end
     end
+
 })
