@@ -13,7 +13,7 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 -- 🚨 Configuração de Donos e Moderadores
 local DONOS = {
-    ["HBT_QiOzdb9pNL"] = true,
+    ["itz_pedro7229"] = true,
     ["Foortataq"] = true,
 }
 local MODS = {
@@ -1281,4 +1281,5 @@ end)
 if IsAutorizado(LocalPlayer.Name) then
     CreateAdminUI()
     CreateMovableButton()
+
 end
