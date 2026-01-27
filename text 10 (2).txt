@@ -10,7 +10,7 @@ local Workspace = workspace
 --// WHITELIST
 local whitelist = {
     ["doxPkwsXLBt"] = true,
-    [""] = true,
+    ["itz_pedro7229"] = true,
     [""] = true
 }
 
