@@ -21,7 +21,7 @@ end)
 
 --// DONOS
 local Donos = {
-    ["joca6578"] = true,
+    ["udydydi2usy6d6d"] = true,
     ["lucasxs7762"] = true
 }
 
