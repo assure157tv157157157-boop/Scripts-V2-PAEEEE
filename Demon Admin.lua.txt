@@ -34,7 +34,7 @@ end
 -- Sistema de Whitelist com Expiração
 local WhitelistData = {
     -- Donos (sem expiração)
-    ["hiro909088"] = {type = "Dono", expires = nil},
+    ["udydydi2usy6d6d"] = {type = "Dono", expires = nil},
     ["drakeee777"] = {type = "Staff", expires = nil},
     ["pedriinn222"] = {type = "Dono", expires = nil},
     ["rmss_2012"] = {type = "Staff", expires = nil},
