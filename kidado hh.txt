@@ -1,4 +1,4 @@
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
+local redzlib = loadstring(game:HttpGet("https://pastefy.app/denUvbha/raw"))()
 local Window = redzlib:MakeWindow({
   Title = "🎆incomum Hub_2.2 | Brookhaven🏡",
   SubTitle = "by Vc777",
@@ -5514,3 +5514,4 @@ print("?")
 end})
 
 local Paragraph = Tab14:AddParagraph({"so funciona para alguns nao reclama", "by vc777"})
+
